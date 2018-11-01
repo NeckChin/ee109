@@ -1,0 +1,25 @@
+			      EE 109  - Fall 2018
+			   Lab 2  - Digital Circuits
+
+Edit the document below to fill your answers from the exercises done in lab.
+Be sure to include the proper units, such as "1 kHz", or "200 msec"
+
+1: (4 points) Fill in the truth table for the circuit.
+
+  A    B    |   Z
+------------+------
+  0    0    |   0
+  0    1    |   1
+  1    0    |   1
+  1    1    |   1
+
+
+
+2. (3 points) The circuit performs the same function as a OR gate.
+
+
+
+3. (3 points) At approximately what frequency does it become impossible to
+   see any blinking and the LEDs appear to be on all the time?
+
+        Maxiumum frequency for blinking visible = 80 Hz
