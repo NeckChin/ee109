@@ -54,8 +54,8 @@ int main(void) {
     adc_init(ADC_CHAN);
     serial_init(MYUBRR);
 
-    sei();                      // Enable interrupts
     UCSR0B |= (1 << RXCIE0);    // Enable receiver interrupts
+    sei();                      // Enable interrupts
 
     // Show the splash screen
     lcd_moveto(0,3);
@@ -77,8 +77,6 @@ int main(void) {
         if(abs(51 - adc_result) < 5) {
             index = index == 9 ? 0 : index + 1;
             lcd_moveto(0, 0);
-            lcd_stringout("                ");
-            lcd_moveto(0, 0);
             lcd_stringout(messages[index]);
             _delay_ms(200);
         }
@@ -86,8 +84,6 @@ int main(void) {
         // Down button pressed?
         if(abs(101 - adc_result) < 5) {
             index = index == 0 ? 9 : index - 1;
-            lcd_moveto(0, 0);
-            lcd_stringout("                ");
             lcd_moveto(0, 0);
             lcd_stringout(messages[index]);
             _delay_ms(200);
@@ -103,8 +99,6 @@ int main(void) {
         if(finished) {
             finished = 0;
             lcd_moveto(1, 0);
-            lcd_stringout("                ");
-            lcd_moveto(1, 0);
             lcd_stringout(buffer);
         }
     }
@@ -114,7 +108,7 @@ int main(void) {
 
 void serial_init(unsigned short ubrr_value)
 {
-    UBRR0 = MYUBRR;
+    UBRR0 = ubrr_value;
     // Set up USART0 registers
     UCSR0B |= (1 << TXEN0 | 1 << RXEN0);
     UCSR0C = (3 << UCSZ00);
@@ -145,7 +139,9 @@ ISR(USART_RX_vect)
     // Store in buffer
     buffer[char_nums] = ch;
     // If message complete, set flag
-    if(++char_nums == 15) {
+    char_nums++;
+
+    if(char_nums == 16) {
         finished = 1;
         char_nums = 0;
     }
