@@ -45,7 +45,7 @@ char *messages[] = {
 short index = 0;
 short char_nums = 0;
 char finished = 0;
-char buffer[16];
+char buffer[17];
 
 int main(void) {
     // Initialize the modules and LCD
@@ -140,8 +140,8 @@ ISR(USART_RX_vect)
     buffer[char_nums] = ch;
     // If message complete, set flag
     char_nums++;
-
     if(char_nums == 16) {
+        buffer[16] = '\0';
         finished = 1;
         char_nums = 0;
     }
