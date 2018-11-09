@@ -36,11 +36,11 @@ unsigned char ds_readbyte(void);
 */
 void ds_init(void)
 {
-    // Set the 1-Wire port bit for input with the internal pull-up turned off.
-    DDRC &= ~(1 << PC5);        // Put bus in high-Z state
-    PORTC &= ~(1 << PC5);       // Put a zero in the port bit
-                                // which also turns off internal pullup
-    _delay_ms(20);
+  // Set the 1-Wire port bit for input with the internal pull-up turned off.
+  DDRC &= ~(1 << PC5);        // Put bus in high-Z state
+  PORTC &= ~(1 << PC5);       // Put a zero in the port bit
+                              // which also turns off internal pullup
+  _delay_ms(20);
 }
 
 /*
@@ -50,22 +50,22 @@ void ds_init(void)
 */
 void ds_temp(unsigned char *tdata)
 {
-    unsigned char i;
+  unsigned char i;
 
-    if (ds_reset()) {                   // Reset the DS18B20
-	    ds_writebyte(DS_SKIP_ROM);  // Send a "Skip ROM" command
-	    ds_writebyte(DS_CONVERT_T); // Send a "Convert T" command
-	    while (!ds_readbit());      // Wait for a read to return a one
+  if (ds_reset()) {                   // Reset the DS18B20
+    ds_writebyte(DS_SKIP_ROM);  // Send a "Skip ROM" command
+    ds_writebyte(DS_CONVERT_T); // Send a "Convert T" command
+    while (!ds_readbit());      // Wait for a read to return a one
+  }
+  if (ds_reset()) {                   // Reset the DS18B20
+    ds_writebyte(DS_SKIP_ROM);      // Send a "Skip ROM" command
+    ds_writebyte(DS_READ_SCRATCHPAD);  // Send a "Read Scratchpad" command
+    *tdata++ = ds_readbyte();       // Read the first byte (LSB)
+    *tdata = ds_readbyte();         // Read the second byte (MSB)
+    for (i = 0; i < 7; i++) {       // Read the rest of the scratchpad data
+      (void) ds_readbyte();
     }
-    if (ds_reset()) {                   // Reset the DS18B20
-	ds_writebyte(DS_SKIP_ROM);      // Send a "Skip ROM" command
-	ds_writebyte(DS_READ_SCRATCHPAD);  // Send a "Read Scratchpad" command
-	*tdata++ = ds_readbyte();       // Read the first byte (LSB)
-	*tdata = ds_readbyte();         // Read the second byte (MSB)
-	for (i = 0; i < 7; i++) {       // Read the rest of the scratchpad data
-	    (void) ds_readbyte();
-	}
-    }
+  }
 }
 
 /*
@@ -78,18 +78,17 @@ void ds_temp(unsigned char *tdata)
 */
 char ds_reset(void)
 {
-    DDRC |= (1 << PC5);         // Pull bus low
-    _delay_us(600);             // Delay >480usec
-    DDRC &= ~(1 << PC5);        // Let bus go high
-    _delay_us(67);              // Wait for Presense pulse
-    if ((PINC & (1 << PC5)) == 0) {
-	while ((PINC & (1 << PC5)) == 0) {} // Wait for pulse to end
-	_delay_us(50);          // Probably don't need to do this
-        return(1);              // Return status OK
-    }
-    else
-	return(0);              // Return reset failed
-
+  DDRC |= (1 << PC5);         // Pull bus low
+  _delay_us(600);             // Delay >480usec
+  DDRC &= ~(1 << PC5);        // Let bus go high
+  _delay_us(67);              // Wait for Presense pulse
+  if ((PINC & (1 << PC5)) == 0) {
+    while ((PINC & (1 << PC5)) == 0) {} // Wait for pulse to end
+    _delay_us(50);          // Probably don't need to do this
+    return(1);              // Return status OK
+  }
+  else
+    return(0);              // Return reset failed
 }
 
 /*
@@ -97,23 +96,21 @@ char ds_reset(void)
 */
 void ds_write1bit(void)
 {
-    DDRC |= (1 << PC5);         // Pull bus low
-    _delay_us(2);               // Delay 2usec
-    DDRC &= ~(1 << PC5);        // Let bus go high
-    _delay_us(60);              // Delay 60usec
+  DDRC |= (1 << PC5);         // Pull bus low
+  _delay_us(2);               // Delay 2usec
+  DDRC &= ~(1 << PC5);        // Let bus go high
+  _delay_us(60);              // Delay 60usec
 }
 
 /*
   ds_write0bit - Write a single 0 bit out the bus
-  
-
 */
 void ds_write0bit(void)
 {
-
-    // Add code to write a 0 to the slave device
-    // See page 16 of DS128B20 datasheet
-
+  // Add code to write a 0 to the slave device
+  // See page 16 of DS128B20 datasheet
+  DDRC |= (1 << PC5);         // Pull bus low
+  _delay_us(62);               // Delay 62usec
 }
 
 /*
@@ -122,10 +119,10 @@ void ds_write0bit(void)
 */
 unsigned char ds_readbit(void)
 {
-
-    // Add code to read a bit from the slave device
-    // See page 17 of DS128B20 datasheet
-
+  // Add code to read a bit from the slave device
+  // See page 17 of DS128B20 datasheet
+  DDRC |= (1 << PC5);         // Pull bus low
+  _delay_us(2);               // Delay 2usec
 }
 
 /*
@@ -133,17 +130,17 @@ unsigned char ds_readbit(void)
 */
 void ds_writebyte(unsigned char x)
 {
-    unsigned char i;
+  unsigned char i;
 
-    i = 8;
-    while (i != 0) {
-        if (x & 1)              // Check the LSB
-            ds_write1bit();     // Send a one
-        else
-            ds_write0bit();     // Send a zero
-        x >>= 1;                // Shift x over towards the LSB
-        i--;
-    }
+  i = 8;
+  while (i != 0) {
+    if (x & 1)              // Check the LSB
+      ds_write1bit();     // Send a one
+    else
+      ds_write0bit();     // Send a zero
+    x >>= 1;                // Shift x over towards the LSB
+    i--;
+  }
 }
 
 /*
@@ -151,16 +148,16 @@ void ds_writebyte(unsigned char x)
 */
 unsigned char ds_readbyte()
 {
-    unsigned char i, x, m;
+  unsigned char i, x, m;
 
-    x = 0;
-    m = 1;                      // m = mask for sticking bits in x
-    i = 8;
-    while (i != 0) {
-        if (ds_readbit())       // Get a bit
-            x |= m;             // If a one, put a one in x
-        m <<= 1;                // Shift the mask towards the MSB
-        i--;
+  x = 0;
+  m = 1;                      // m = mask for sticking bits in x
+  i = 8;
+  while (i != 0) {
+    if (ds_readbit())       // Get a bit
+      x |= m;             // If a one, put a one in x
+      m <<= 1;                // Shift the mask towards the MSB
+      i--;
     }
-    return(x);
+  return(x);
 }

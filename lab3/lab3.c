@@ -23,22 +23,21 @@ int main(void)
     // Initialize appropriate DDR registers
     DDRB = 0x00;
     DDRD = 0x08;
-	
+
     // Initialize the LED output to 0
     PORTD = 0x00;
-	
-    // Enable the pull-up resistors for the 
-    // 3 button inputs 
+
+    // Enable the pull-up resistors for the
+    // 3 button inputs
 	  PORTB = 0x38;
 
     // Loop forever
-    while (1) {                 
-    
+    while (1) {
 	// Use if statements and the checkInput()
 	//  function to determine if a button
 	//  is being pressed and then output
 	//  the correct dot/dash sequence by
-	//  calling the dot(), dash(), and 
+	//  calling the dot(), dash(), and
 	//  using appropriate delay functions
 
       if(!checkInput(5))
@@ -84,12 +83,12 @@ void dash()
 }
 
 /*
-  makeOutput() - Changes the output bit to either a zero 
+  makeOutput() - Changes the output bit to either a zero
   or one, based on the input argument "value".
-  
+
   If the argument is zero, turn the output OFF,
-  otherwise turn the output ON. 
-  
+  otherwise turn the output ON.
+
   Do not use any delays here.  Just use bit-wise operations
   to make the appropriate PORT bit turn on or off.
 */
@@ -117,13 +116,13 @@ void makeOutput(char value)
   // Don't do anything in the default state
   default:
     break;
-  } 
+  }
 }
 
 /*
   checkInput(bit) - Checks the state of the input bit specified by the
   "bit" argument (0-7), and returns either 0 or 1 depending on its state.
-  
+
   COMPLETE -- DO NOT CHANGE
 */
 char checkInput(char bit)
