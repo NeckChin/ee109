@@ -19,7 +19,6 @@ char checkInput(char);
 
 int main(void)
 {
-
     // Initialize appropriate DDR registers
     DDRB = 0x00;
     DDRD = 0x08;

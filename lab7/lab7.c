@@ -52,7 +52,7 @@ int main(void) {
 
 	// Read the A and B inputs to determine the intial state
 	// Warning: Do NOT read A and B separately.  You should read BOTH inputs
-	// at the same time, then determine the A and B values from that value.   
+	// at the same time, then determine the A and B values from that value.
 	unsigned char input = PINC;
 	a = input & (1 << PC1);
 	b = input & (1 << PC5);
@@ -80,7 +80,7 @@ int main(void) {
 			char temp[12];
 			sprintf(temp, "%d", count);
 			lcd_stringout(temp);
-		
+
 			// Do we play a note?
 			if ((count % 8) == 0) {
 				// Determine which note (0-7) to play
@@ -131,7 +131,7 @@ ISR(PCINT1_vect) {
 	unsigned char input = PINC;
 	a = input & (1 << PC1);
 	b = input & (1 << PC5);
-	
+
 	// For each state, examine the two input bits to see if state
 	// has changed, and if so set "new_state" to the new state,
 	// and adjust the count value.
