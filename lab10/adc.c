@@ -2,7 +2,6 @@
 
 #include "adc.h"
 
-
 void adc_init(unsigned char channel)
 {
     // Initialize the ADC
