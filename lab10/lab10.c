@@ -14,6 +14,8 @@
 
 #include "highlow.h"
 
+int temp = 72;
+
 int main(void) {
   // Set up ports
   DDRB |= (1 << PB4);
@@ -31,14 +33,28 @@ int main(void) {
   // Initialize encoder
   encoder_init();
   // Set up LCD
-  lcd_stringout("Temp:    Rmt:");
-  lcd_writecommand(1);
+  lcd_stringout("Temp:   Rmt:");
+  lcd_moveto(1, 0);
+  char buf[16];
+  snprintf(buf, 16, "Low=%2d High=%2d  ", get_low_temp(), get_high_temp());
+  lcd_stringout(buf);
 
   while(1) {
+    if(temp < get_low_temp()) {
+      PORTD &= ~(1 << PD2);
+      PORTD |= (1 << PD3);
+    }
+    else if(temp > get_high_temp()) {
+      PORTD &= ~(1 << PD3);
+      PORTD |= (1 << PD2);
+    }
+    else {
+      PORTD &= ~((1 << PD3) | (1 << PD2));
+    }
+
     if(temp_has_change()) {
       lcd_moveto(1, 0);
-      char buf[16];
-      snprintf(buf, 16, "Low=%2d High=%2d", get_low_temp(), get_high_temp());
+      snprintf(buf, 16, "Low=%2d High=%2d  ", get_low_temp(), get_high_temp());
       lcd_stringout(buf);
     }
   }
