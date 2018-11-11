@@ -2,12 +2,16 @@
 #include <avr/interrupt.h>
 
 #include "adc.h"
-#include "lcd.h"
 
-int temp_diff = 0;
 char changed = 0;
+
 char old_state, new_state;
 char a, b;
+
+unsigned char cold_hot = 0;
+unsigned char toggle_changed = 0;
+int high_temp = 80;
+int low_temp = 60;
 
 void encoder_init() {
   // Read the A and B inputs to determine the intial state
@@ -24,15 +28,15 @@ void encoder_init() {
     old_state = 1;
 }
 
-int get_temp() {
-  return temp_diff;
+int get_high_temp() {
+  return high_temp;
 }
 
-void reset_temp() {
-  temp_diff = 0;
+int get_low_temp() {
+  return low_temp;
 }
 
-void has_change() {
+char temp_has_change() {
   if(changed == 1) {
     changed = 0;
     return 1;
@@ -42,6 +46,7 @@ void has_change() {
 }
 
 ISR(PCINT1_vect) {
+  int temp_diff = 0;
   // Read the input bits and determine A and B
   unsigned char input = PINC;
   a = input & (1 << PC1);
@@ -95,9 +100,21 @@ ISR(PCINT1_vect) {
     }
   }
 
+  if(cold_hot == 0)
+    low_temp += temp_diff;
+  else
+    high_temp += temp_diff;
+
   // If state changed, update the value of old_state
   if (new_state != old_state) {
     old_state = new_state;
     changed = 1;
   }
+}
+
+ISR(PCINT0_vect) {
+  if((PINB & (1 << PB3)) == 0)
+    cold_hot = 0;
+  else if((PINB & (1 << PB4)) == 0)
+    cold_hot = 1;
 }

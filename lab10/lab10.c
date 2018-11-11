@@ -12,15 +12,7 @@
 #include <util/delay.h>
 #include <stdlib.h>
 
-#include "encoder.h"
-#include "adc.h"
-
-unsigned char cold_hot = 0;
-unsigned char toggle_changed = 0;
-int heat_temp = 80;
-int old_heat_temp = 80;
-int cool_temp = 60;
-int old_cool_temp = 80;
+#include "highlow.h"
 
 int main(void) {
   // Set up ports
@@ -36,36 +28,18 @@ int main(void) {
   // Initialize the LCD
   lcd_init();
   lcd_writecommand(1);
-  // Set up LCD
-  lcd_stringout("Temp:    Rmt:");
-  lcd_moveto(1, 0);
-  lcd_stringout("Low=    High=");
-  lcd_writecommand(1);
   // Initialize encoder
   encoder_init();
+  // Set up LCD
+  lcd_stringout("Temp:    Rmt:");
+  lcd_writecommand(1);
 
   while(1) {
-    if(toggle_changed) {
-      reset_temp();
+    if(temp_has_change()) {
+      lcd_moveto(1, 0);
+      char buf[16];
+      snprintf(buf, 16, "Low=%2d High=%2d", get_low_temp(), get_high_temp());
+      lcd_stringout(buf);
     }
-    lcd_moveto(0, 0);
-    char buf[16];
-    snprintf(buf, 16, "%6d", get_temp());
-    lcd_stringout(buf);
   }
-}
-
-ISR(PCINT0_vect) {
-    if((PINB & (1 << PB3)) == 0) {
-      if(cold_hot == 1) {
-        cold_hot = 0;
-        toggle_changed = 1;
-      }
-    }
-    else if((PINB & (1 << PB4)) == 0) {
-      if(cold_hot == 0) {
-        cold_hot = 1;
-        toggle_changed = 1;
-      }
-    }
 }
