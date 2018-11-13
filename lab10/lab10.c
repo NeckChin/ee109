@@ -15,7 +15,7 @@
 #include "highlow.h"
 #include "serial.h"
 
-short temp = 72;
+short temp = -72;
 short remote = 72;
 
 int main(void) {
@@ -64,12 +64,16 @@ int main(void) {
     }
 
     if(temp_has_change()) {
-      serial_stringout(temp);
-      lcd_moveto(1, 0);
+      serial_tempout(temp);
       snprintf(buf, 16, "Low=%2d High=%2d", get_low_temp(), get_high_temp());
+      lcd_moveto(1, 0);
+      lcd_stringout(buf);
+      serial_tempout(temp);
+    }
+    if(valid_data()) {
+      snprintf(buf, 16, "Temp:%2d Rmt:%2s", get_low_temp(), remote_temp());
+      lcd_moveto(0, 0);
       lcd_stringout(buf);
     }
-    lcd_moveto(0, 0);
-    lcd_stringout(remote_temp());
   }
 }

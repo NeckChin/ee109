@@ -1,6 +1,9 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdio.h>
+#include <stdlib.h>
+
+#include "lcd.h"
 
 #define FOSC 16000000           // Clock frequency
 #define BAUD 9600               // Baud rate used
@@ -9,6 +12,7 @@
 char buf[5];
 short num_chars = 0;
 char data_valid = 0;
+short tog = 0;
 
 char valid_data() {
   if(data_valid) {
@@ -40,13 +44,14 @@ void serial_txchar(char ch)
   UDR0 = ch;
 }
 
-void serial_stringout(short temp)
+void serial_tempout(short temp)
 {
   char tem[3];
-  snprintf(tem, 3, "%3s", temp);
+  snprintf(tem, 3, "%2d", abs(temp));
   serial_txchar('@');
+  serial_txchar(temp < 0 ? '-' : '+');
   // Call serial_txchar in loop to send a string
-  for(int i = 0; i < 3; i++) {
+  for(int i = 0; i < 2; i++) {
     serial_txchar(tem[i]);
   }
   serial_txchar('$');
@@ -59,18 +64,31 @@ ISR(USART_RX_vect)
   ch = UDR0;
   // Check if data start
   if(ch == '@') {
+    tog = 0;
     num_chars = 0;
   }
   // Store in buffer
-  else if(ch - '0' < 10 && ch - '0' >= 0) {
-    buf[num_chars] = ch - '0';
-    num_chars += 1;
+  else if(ch >= '0' && ch <= '9') {
+    if(num_chars != 0) {
+      buf[num_chars - tog] = ch;
+      num_chars += 1;
+    }
   }
   // Check if data end
   else if(ch == '$') {
-    if(num_chars != 0) {
+    if(num_chars > 1)
       data_valid = 1;
+  }
+  else if(ch == '-' || ch == '+') {
+    if(num_chars == 0) {
+      if(ch == '-')
+        buf[num_chars] = ch;
+      else
+        tog = 1;
+      num_chars++;
     }
+    else
+      num_chars = 0;
   }
   else {
     num_chars = 0;
