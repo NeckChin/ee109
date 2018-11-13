@@ -46,9 +46,6 @@ int main(void) {
   lcd_writecommand(1);
   // Reset LCD
   char buf[16];
-  lcd_moveto(0, 0);
-  snprintf(buf, 16, "Temp:%2s Rmt:%2s", temp, remote);
-  lcd_stringout(buf);
   lcd_moveto(1, 0);
   snprintf(buf, 16, "Low=%2d High=%2d", get_low_temp(), get_high_temp());
   lcd_stringout(buf);
@@ -67,15 +64,12 @@ int main(void) {
     }
 
     if(temp_has_change()) {
+      serial_stringout(temp);
       lcd_moveto(1, 0);
       snprintf(buf, 16, "Low=%2d High=%2d", get_low_temp(), get_high_temp());
       lcd_stringout(buf);
     }
-    if(valid_data()) {
-      lcd_moveto(0, 0);
-      snprintf(buf, 16, "Temp:%2s Rmt:%2s", temp, remote);
-      lcd_stringout(buf);
-    }
-    temp_out(temp);
+    lcd_moveto(0, 0);
+    lcd_stringout(remote_temp());
   }
 }

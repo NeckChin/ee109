@@ -19,28 +19,19 @@ char valid_data() {
     return 0;
 }
 
-void temp_out(short temp) {
-  char tem[3];
-  snprintf(tem, 3, "%3s", temp);
-  serial_txchar('@');
-  serial_stringout(tem);
-  serial_txchar('$');
-}
-
 char* remote_temp() {
   return buf;
 }
 
-void serial_init()
+void serial_init(unsigned short ubrr_value)
 {
-  UBRR0 = MYUBRR;
+  UBRR0 = ubrr_value;
   // Set up USART0 registers
   UCSR0B |= (1 << TXEN0 | 1 << RXEN0);
   UCSR0C = (3 << UCSZ00);
   // Enable tri-state
-  DDRD |= (1 << PD2);
-  PORTD &= ~(1 << PD2);
-  buf[4] = '\0';
+  DDRD |= (1 << PD3);
+  PORTD &= ~(1 << PD3);
 }
 
 void serial_txchar(char ch)
@@ -49,12 +40,16 @@ void serial_txchar(char ch)
   UDR0 = ch;
 }
 
-void serial_stringout(char *s)
+void serial_stringout(short temp)
 {
+  char tem[3];
+  snprintf(tem, 3, "%3s", temp);
+  serial_txchar('@');
   // Call serial_txchar in loop to send a string
-  for(int i = 0; i < 16; i++) {
-    serial_txchar(s[i]);
+  for(int i = 0; i < 3; i++) {
+    serial_txchar(tem[i]);
   }
+  serial_txchar('$');
 }
 
 ISR(USART_RX_vect)
@@ -68,7 +63,8 @@ ISR(USART_RX_vect)
   }
   // Store in buffer
   else if(ch - '0' < 10 && ch - '0' >= 0) {
-    buf[num_chars++] = ch - '0';
+    buf[num_chars] = ch - '0';
+    num_chars += 1;
   }
   // Check if data end
   else if(ch == '$') {
