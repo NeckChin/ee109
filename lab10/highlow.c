@@ -121,8 +121,8 @@ ISR(PCINT1_vect) {
 }
 
 ISR(PCINT0_vect) {
-  if((PINB & (1 << PB3)) == 0)
+  if(!(PINB & (1 << PB3)))
     cold_hot = 0;
-  else if((PINB & (1 << PB4)) == 0)
+  else if(!(PINB & (1 << PB4)))
     cold_hot = 1;
 }
