@@ -10,7 +10,6 @@
 char buf[5];
 short num_chars = 0;
 char data_valid = 0;
-short tog = 0;
 
 char valid_data() {
   if(data_valid) {
@@ -21,8 +20,10 @@ char valid_data() {
     return 0;
 }
 
-char* remote_temp() {
-  return buf;
+short remote_temp() {
+  int temp = 0;
+  sscanf(buf, "%d", &temp);
+  return temp;
 }
 
 void serial_init(unsigned short ubrr_value)
@@ -44,14 +45,17 @@ void serial_txchar(char ch)
 
 void serial_tempout(short temp)
 {
-  char tem[3];
-  snprintf(tem, 3, "%2d", abs(temp));
+  char tem[4];
+  snprintf(tem, 4, "%d", abs(temp));
   serial_txchar('@');
   serial_txchar(temp < 0 ? '-' : '+');
   // Call serial_txchar in loop to send a string
-  for(int i = 0; i < 2; i++) {
-    serial_txchar(tem[i]);
-  }
+  if(temp >= 100)
+    for(int i = 0; i < 3; i++)
+      serial_txchar(tem[i]);
+  else
+    for(int i = 0; i < 2; i++)
+      serial_txchar(tem[i]);
   serial_txchar('$');
 }
 
@@ -62,14 +66,16 @@ ISR(USART_RX_vect)
   ch = UDR0;
   // Check if data start
   if(ch == '@') {
-    tog = 0;
     num_chars = 0;
   }
   // Store in buffer
   else if(ch >= '0' && ch <= '9') {
-    if(num_chars != 0) {
-      buf[num_chars - tog] = ch;
+    if(num_chars >= 1) {
+      buf[num_chars] = ch;
       num_chars += 1;
+    }
+    else {
+      num_chars = 0;
     }
   }
   // Check if data end
@@ -79,10 +85,7 @@ ISR(USART_RX_vect)
   }
   else if(ch == '-' || ch == '+') {
     if(num_chars == 0) {
-      if(ch == '-')
-        buf[num_chars] = ch;
-      else
-        tog = 1;
+      buf[num_chars] = ch;
       num_chars++;
     }
     else

@@ -16,7 +16,7 @@
 #include "serial.h"
 #include "ds18b20.h"
 
-short temp = 72;
+short temp = 100;
 short previous = 72;
 short remote = 72;
 
@@ -46,7 +46,7 @@ int main(void) {
   _delay_ms(500);
   lcd_writecommand(1);
   // Reset LCD
-  char buf[16];
+  char buf[17];
   lcd_moveto(1, 0);
   snprintf(buf, 16, "Low=%2d High=%2d", low_temp, high_temp);
   lcd_stringout(buf);
@@ -65,14 +65,13 @@ int main(void) {
     }
 
     if(temp_has_change()) {
-      serial_tempout(temp);
-      snprintf(buf, 16, "Low=%2d High=%2d", low_temp, high_temp);
+      snprintf(buf, 17, "Low=%3d High=%3d", low_temp, high_temp);
       lcd_moveto(1, 0);
       lcd_stringout(buf);
       serial_tempout(temp);
     }
     if(valid_data()) {
-      snprintf(buf, 16, "Temp:%2d Rmt:%2s", temp, remote_temp());
+      snprintf(buf, 17, "Temp:%3d Rmt:%3d", temp, remote_temp());
       lcd_moveto(0, 0);
       lcd_stringout(buf);
     }
