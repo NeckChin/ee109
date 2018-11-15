@@ -28,14 +28,6 @@ void encoder_init() {
     old_state = 1;
 }
 
-int get_high_temp() {
-  return high_temp;
-}
-
-int get_low_temp() {
-  return low_temp;
-}
-
 char temp_has_change() {
   if(changed == 1) {
     changed = 0;

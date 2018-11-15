@@ -47,15 +47,15 @@ int main(void) {
   // Reset LCD
   char buf[16];
   lcd_moveto(1, 0);
-  snprintf(buf, 16, "Low=%2d High=%2d", get_low_temp(), get_high_temp());
+  snprintf(buf, 16, "Low=%2d High=%2d", low_temp, high_temp);
   lcd_stringout(buf);
 
   while(1) {
-    if(temp < get_low_temp()) {
+    if(temp < low_temp) {
       PORTC &= ~(1 << PC2);
       PORTC |= (1 << PC3);
     }
-    else if(temp > get_high_temp()) {
+    else if(temp > high_temp) {
       PORTC &= ~(1 << PC3);
       PORTC |= (1 << PC2);
     }
@@ -65,13 +65,13 @@ int main(void) {
 
     if(temp_has_change()) {
       serial_tempout(temp);
-      snprintf(buf, 16, "Low=%2d High=%2d", get_low_temp(), get_high_temp());
+      snprintf(buf, 16, "Low=%2d High=%2d", low_temp, high_temp);
       lcd_moveto(1, 0);
       lcd_stringout(buf);
       serial_tempout(temp);
     }
     if(valid_data()) {
-      snprintf(buf, 16, "Temp:%2d Rmt:%2s", get_low_temp(), remote_temp());
+      snprintf(buf, 16, "Temp:%2d Rmt:%2s", low_temp, remote_temp());
       lcd_moveto(0, 0);
       lcd_stringout(buf);
     }
