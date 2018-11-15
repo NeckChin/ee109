@@ -82,6 +82,6 @@ int main(void) {
     temp = (cel[1] << 8) | cel[0];
     ds_temp(cel);
 
-    serial_tempout(temp);
+    serial_tempout(72);
   }
 }
