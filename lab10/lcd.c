@@ -35,7 +35,7 @@ void lcd_writenibble(unsigned char);
 
     lcd_writenibble(0x20);      // Use lcd_writenibble to send 0b0010
     _delay_ms(2);               // Delay at least 2ms
-    
+
     lcd_writecommand(0x28);     // Function Set: 4-bit interface, 2 lines
 
     lcd_writecommand(0x0f);     // Display and cursor on

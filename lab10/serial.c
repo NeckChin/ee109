@@ -3,8 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "lcd.h"
-
 #define FOSC 16000000           // Clock frequency
 #define BAUD 9600               // Baud rate used
 #define MYUBRR (FOSC/16/BAUD-1) // Value for UBRR0 register

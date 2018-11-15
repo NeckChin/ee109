@@ -15,7 +15,7 @@
 #include "highlow.h"
 #include "serial.h"
 
-short temp = -72;
+short temp = 72;
 short remote = 72;
 
 int main(void) {

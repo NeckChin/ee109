@@ -10,7 +10,12 @@ AVRDUDE = avrdude $(PROGRAMMER) -p $(DEVICE)
 COMPILE = avr-gcc -Wall -Os -DF_CPU=$(CLOCK) -mmcu=$(DEVICE)
 
 # symbolic targets:
-all:	main.hex
+all:       main.hex
+lcd.o:     lcd.c lcd.h
+adc.o:     adc.c adc.h
+ds18b20.o: ds18b20.c ds18b20.h
+serial.o:  serial.c serial.h
+highlow.o: highlow.c highlow.h adc.h
 
 .c.o:
 	$(COMPILE) -c $< -o $@
