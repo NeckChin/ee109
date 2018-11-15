@@ -14,8 +14,10 @@
 
 #include "highlow.h"
 #include "serial.h"
+#include "ds18b20.h"
 
 short temp = 72;
+short previous = 72;
 short remote = 72;
 
 int main(void) {
@@ -23,21 +25,20 @@ int main(void) {
   DDRB |= (1 << PB4);
   DDRC |= (1 << PC2) | (1 << PC3);
   PORTB |= (1 << PB3) | (1 << PB4);
-  PORTC |= (1 << PC5) | (1 << PC1);
+  PORTC |= (1 << PC4) | (1 << PC1);
   // Set up interrupts
   sei();
   PCICR |= (1 << PCIE0) | (1 << PCIE1);
   PCMSK0 |= (1 << PCINT3) | (1 << PCINT4);
-  PCMSK1 |= (1 << PCINT9) | (1 << PCINT13);
+  PCMSK1 |= (1 << PCINT9) | (1 << PCINT12);
   UCSR0B |= (1 << RXCIE0);
-  // Initialize the LCD
-  lcd_init();
-  lcd_writecommand(1);
-  // Initialize encoder
-  encoder_init();
-  // Set up serial communication
-  serial_init();
+  lcd_init();           // Initialize the LCD
+  encoder_init();       // Initialize encoder
+  serial_init();        // Set up serial communication
+  ds_reset();           // Reset DS18B20
+
   // Show splashscreen
+  lcd_writecommand(1);
   lcd_moveto(0, 2);
   lcd_stringout("EE109 Lab 10");
   lcd_moveto(1, 3);
@@ -71,7 +72,7 @@ int main(void) {
       serial_tempout(temp);
     }
     if(valid_data()) {
-      snprintf(buf, 16, "Temp:%2d Rmt:%2s", low_temp, remote_temp());
+      snprintf(buf, 16, "Temp:%2d Rmt:%2s", temp, remote_temp());
       lcd_moveto(0, 0);
       lcd_stringout(buf);
     }

@@ -110,7 +110,8 @@ void ds_write0bit(void)
   // Add code to write a 0 to the slave device
   // See page 16 of DS128B20 datasheet
   DDRC |= (1 << PC5);         // Pull bus low
-  _delay_us(62);               // Delay 62usec
+  _delay_us(122);             // Delay 122usec
+  DDRC &= ~(1 << PC5);        // Make bus go back high
 }
 
 /*
@@ -123,6 +124,9 @@ unsigned char ds_readbit(void)
   // See page 17 of DS128B20 datasheet
   DDRC |= (1 << PC5);         // Pull bus low
   _delay_us(2);               // Delay 2usec
+  DDRC &= ~(1 << PC5);        // Let bus go high
+  _delay_us(5);              // Delay 60usec
+  return PINC | (1 << PC5);
 }
 
 /*

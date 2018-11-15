@@ -1,8 +1,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-#include "adc.h"
-
 char changed = 0;
 
 char old_state, new_state;
@@ -17,7 +15,7 @@ void encoder_init() {
   // Read the A and B inputs to determine the intial state
   unsigned char input = PINC;
   a = input & (1 << PC1);
-  b = input & (1 << PC5);
+  b = input & (1 << PC4);
   if (a && b)
     old_state = 3;
   else if (!a && !b)
@@ -26,6 +24,27 @@ void encoder_init() {
     old_state = 2;
   else
     old_state = 1;
+}
+
+void increase_temp(short diff) {
+  if(cold_hot) {
+    low_temp += diff;
+    if(low_temp < 40)
+      low_temp = 40;
+    else if(low_temp > 100)
+      low_temp = 100;
+    else if(low_temp > high_temp)
+      low_temp = high_temp;
+  }
+  else {
+    high_temp += diff;
+    if(high_temp < 40)
+      high_temp = 40;
+    else if(high_temp > 100)
+      high_temp = 100;
+    else if(high_temp < low_temp)
+      high_temp = low_temp;
+  }
 }
 
 char temp_has_change() {
@@ -38,11 +57,11 @@ char temp_has_change() {
 }
 
 ISR(PCINT1_vect) {
-  int temp_diff = 0;
+  short temp_diff = 0;
   // Read the input bits and determine A and B
   unsigned char input = PINC;
   a = input & (1 << PC1);
-  b = input & (1 << PC5);
+  b = input & (1 << PC4);
 
   // For each state, examine the two input bits to see if state
   // has changed, and if so set "new_state" to the new state,
@@ -92,10 +111,7 @@ ISR(PCINT1_vect) {
     }
   }
 
-  if(cold_hot == 0)
-    low_temp += temp_diff;
-  else
-    high_temp += temp_diff;
+  increase_temp(temp_diff);
 
   // If state changed, update the value of old_state
   if (new_state != old_state) {
