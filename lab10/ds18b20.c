@@ -53,9 +53,9 @@ void ds_temp(unsigned char *tdata)
   unsigned char i;
 
   if (ds_reset()) {                   // Reset the DS18B20
-     ds_writebyte(DS_SKIP_ROM);  // Send a "Skip ROM" command
-     ds_writebyte(DS_CONVERT_T); // Send a "Convert T" command
-     while (!ds_readbit());      // Wait for a read to return a one
+    ds_writebyte(DS_SKIP_ROM);  // Send a "Skip ROM" command
+    ds_writebyte(DS_CONVERT_T); // Send a "Convert T" command
+    while (!ds_readbit());      // Wait for a read to return a one
   }
   if (ds_reset()) {                   // Reset the DS18B20
     ds_writebyte(DS_SKIP_ROM);      // Send a "Skip ROM" command
@@ -102,7 +102,6 @@ void ds_write1bit(void)
   _delay_us(60);              // Delay 60usec
 }
 
-
 /*
   ds_write0bit - Write a single 0 bit out the bus
 */
@@ -113,6 +112,7 @@ void ds_write0bit(void)
   DDRC |= (1 << PC5);         // Pull bus low
   _delay_us(60);              // Delay 60usec
   DDRC &= ~(1 << PC5);        // Make bus go back high
+  _delay_us(2);               // Delay 2usec
 }
 
 /*
@@ -127,7 +127,9 @@ unsigned char ds_readbit(void)
   _delay_us(2);               // Delay 2usec
   DDRC &= ~(1 << PC5);        // Let bus go high
   _delay_us(10);              // Delay 10usec
-  return (PINC & (1 << PC5));
+  unsigned char ret = (PINC & (1 << PC5));
+  _delay_us(50);              // Delay 50usec
+  return ret;
 }
 /*
   ds_writebyte - Write an 8-bit byte out the bus
@@ -155,7 +157,7 @@ unsigned char ds_readbyte()
   unsigned char i, x, m;
 
   x = 0;
-  m = 1;                      // m = mask for sticking bits in x
+  m = 1;                  // m = mask for sticking bits in x
   i = 8;
   while (i != 0) {
     if (ds_readbit())     // Get a bit
