@@ -16,7 +16,7 @@
 #include "serial.h"
 #include "ds18b20.h"
 
-short temp = 72;
+short temp = 0;
 short previous = 72;
 short remote = 72;
 
@@ -35,7 +35,7 @@ int main(void) {
   lcd_init();           // Initialize the LCD
   encoder_init();       // Initialize encoder
   serial_init();        // Set up serial communication
-  ds_init();           // Reset DS18B20
+  ds_init();            // Reset DS18B20
 
   // Useful temp variables
   char buf[17];
@@ -55,6 +55,11 @@ int main(void) {
   lcd_stringout(buf);
 
   while(1) {
+    previous = temp;
+    ds_temp(cel);
+    temp |= (cel[1] << 8) | cel[0];
+    temp /= 16;
+
     if(temp < low_temp) {
       PORTC &= ~(1 << PC2);
       PORTC |= (1 << PC3);
@@ -73,14 +78,10 @@ int main(void) {
       lcd_stringout(buf);
     }
     if(valid_data()) {
-      snprintf(buf, 17, "Temp:%3d Rmt:%3d", temp, remote_temp());
+      snprintf(buf, 17, "Temp:%3d Rmt:%3d", cel[1], cel[0]);
       lcd_moveto(0, 0);
       lcd_stringout(buf);
     }
-
-    previous = temp;
-    temp = (cel[1] << 8) | cel[0];
-    ds_temp(cel);
 
     serial_tempout(72);
   }
