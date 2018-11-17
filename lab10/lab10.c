@@ -16,6 +16,7 @@
 #include "highlow.h"
 #include "serial.h"
 #include "ds18b20.h"
+#include "eeprom.h"
 
 unsigned short temp = 0;
 short previous = 72;
@@ -38,6 +39,12 @@ int main(void) {
   serial_init();        // Set up serial communication
   ds_init();            // Reset DS18B20
 
+  // Get temp thresholds
+  if(get_low() <= 100 && get_low() >= 40)
+    low_temp = get_low();
+  if(get_high() <= 100 && get_high() >= 40)
+    high_temp = get_high();
+
   // Useful temp variables
   char buf[17];
   unsigned char cel[2];
@@ -52,7 +59,7 @@ int main(void) {
   while(1) {
     previous = temp;
     ds_temp(cel);
-    temp = (short)(0.1125 * (float)((cel[1] << 8) | cel[0])) + 32;
+    temp = ((9 * ((cel[1] << 8) | cel[0])) + 2560) / 80;
 
     if(temp < low_temp) {
       PORTC &= ~(1 << PC2);
@@ -70,6 +77,8 @@ int main(void) {
       snprintf(buf, 17, "Low=%3d High=%3d", low_temp, high_temp);
       lcd_moveto(1, 0);
       lcd_stringout(buf);
+      save_low(low_temp);
+      save_high(high_temp);
     }
     if(valid_data() || previous != temp) {
       if(previous != temp)

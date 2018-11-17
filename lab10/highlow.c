@@ -8,8 +8,8 @@ char a, b;
 
 unsigned char cold_hot = 0;
 unsigned char toggle_changed = 0;
-int high_temp = 80;
-int low_temp = 60;
+short high_temp = 80;
+short low_temp = 60;
 
 void encoder_init() {
   // Read the A and B inputs to determine the intial state

@@ -3,13 +3,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define FOSC 16000000           // Clock frequency
-#define BAUD 9600               // Baud rate used
-#define MYUBRR (FOSC/16/BAUD-1) // Value for UBRR0 register
-
 char buf[5];
 short num_chars = 0;
 char data_valid = 0;
+
+#define FOSC 16000000           // Clock frequency
+#define BAUD 9600               // Baud rate used
+#define MYUBRR (FOSC/16/BAUD-1) // Value for UBRR0 register
 
 char valid_data() {
   if(data_valid) {
@@ -26,9 +26,9 @@ short remote_temp() {
   return temp;
 }
 
-void serial_init(unsigned short ubrr_value)
+void serial_init()
 {
-  UBRR0 = ubrr_value;
+  UBRR0 = MYUBRR;
   // Set up USART0 registers
   UCSR0B |= (1 << TXEN0 | 1 << RXEN0);
   UCSR0C = (3 << UCSZ00);
@@ -67,6 +67,12 @@ ISR(USART_RX_vect)
   // Check if data start
   if(ch == '@') {
     num_chars = 0;
+    data_valid = 0;
+  }
+  // Check if data end
+  else if(ch == '$') {
+    if(num_chars > 1)
+      data_valid = 1;
   }
   // Store in buffer
   else if(ch >= '0' && ch <= '9') {
@@ -77,11 +83,6 @@ ISR(USART_RX_vect)
     else {
       num_chars = 0;
     }
-  }
-  // Check if data end
-  else if(ch == '$') {
-    if(num_chars > 1)
-      data_valid = 1;
   }
   else if(ch == '-' || ch == '+') {
     if(num_chars == 0) {

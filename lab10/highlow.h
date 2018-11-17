@@ -1,4 +1,4 @@
 void encoder_init();
-extern int high_temp;
-extern int low_temp;
+extern short high_temp;
+extern short low_temp;
 char temp_has_change();
